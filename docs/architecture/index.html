@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Engineering Golden Path</title>
+  <style>
+    :root {
+      --ink: #eaf1f7;
+      --muted: #9eb1c1;
+      --line: #284152;
+      --panel: #122332;
+      --panel-2: #172d3f;
+      --navy: #081521;
+      --navy-2: #0d1d2b;
+      --cyan: #5ed7dc;
+      --blue: #79a9ff;
+      --green: #7ed6a2;
+      --amber: #f4c66f;
+      --coral: #f39182;
+      --shadow: 0 18px 45px rgba(0, 0, 0, .22);
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: var(--navy);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; background: var(--navy); line-height: 1.55; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { font: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 66px;
+      padding: 12px clamp(18px, 4vw, 58px);
+      background: rgba(8, 21, 33, .94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); font-weight: 750; letter-spacing: .02em; white-space: nowrap; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; color: var(--navy); background: var(--cyan); border-radius: 8px; font-weight: 900; }
+    nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    nav a { padding: 7px 10px; border-radius: 7px; color: var(--muted); font-size: .83rem; }
+    nav a:hover, nav a.active { color: var(--ink); background: #1d3b4d; text-decoration: none; }
+
+    main { overflow: hidden; }
+    section { width: min(1220px, calc(100% - 36px)); margin: 0 auto; padding: 86px 0; scroll-margin-top: 70px; }
+    .hero { width: min(1320px, calc(100% - 36px)); min-height: 610px; display: grid; align-items: center; grid-template-columns: 1.08fr .92fr; gap: 54px; padding-top: 86px; position: relative; }
+    .hero:before { content: ""; position: absolute; inset: 30px -20vw 0; z-index: -1; background: linear-gradient(120deg, #0b2030 0%, #0b1b29 47%, #102b37 100%); border-bottom: 1px solid #1f4350; transform: skewY(-2deg); }
+    .eyebrow { color: var(--cyan); font-size: .78rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1, h2, h3 { line-height: 1.1; margin: 0; letter-spacing: -.025em; }
+    h1 { max-width: 780px; margin-top: 16px; font-size: clamp(2.6rem, 6vw, 5.7rem); }
+    h2 { font-size: clamp(1.8rem, 3vw, 2.7rem); }
+    h3 { font-size: 1.08rem; }
+    .hero-copy { max-width: 690px; color: var(--muted); font-size: 1.1rem; margin: 22px 0 28px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 9px; }
+    .badge { padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: rgba(23, 45, 63, .8); font-size: .78rem; }
+    .badge:before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--green); }
+    .lifecycle { padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: rgba(12, 31, 46, .8); box-shadow: var(--shadow); }
+    .lifecycle h3 { color: var(--muted); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; }
+    .life-steps { display: grid; gap: 8px; margin-top: 18px; }
+    .life-step { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 2px solid var(--cyan); background: #152d3c; color: var(--ink); }
+    .life-step span { color: var(--cyan); font-weight: 800; font-size: .74rem; }
+    .life-step:not(:last-child):after { content: "↓"; position: absolute; }
+
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+    .section-head p { max-width: 620px; margin: 0; color: var(--muted); }
+    .kicker { color: var(--amber); font-size: .76rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 10px; }
+    .panel { border: 1px solid var(--line); background: linear-gradient(145deg, rgba(23, 45, 63, .94), rgba(13, 29, 43, .94)); border-radius: 14px; box-shadow: var(--shadow); }
+    .diagram-panel { padding: clamp(14px, 3vw, 28px); }
+    .diagram-panel svg { width: 100%; height: auto; display: block; }
+    .svg-node { cursor: pointer; transition: filter .2s ease, transform .2s ease; transform-box: fill-box; transform-origin: center; }
+    .svg-node:hover, .svg-node.selected { filter: brightness(1.25); transform: scale(1.02); }
+    .svg-label { fill: #eaf1f7; font-size: 14px; font-weight: 700; text-anchor: middle; }
+    .svg-small { fill: #9eb1c1; font-size: 11px; text-anchor: middle; }
+    .svg-line { stroke: #52788d; stroke-width: 2; fill: none; stroke-dasharray: 5 6; animation: flow 12s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -132; } }
+    .detail { min-height: 116px; margin-top: 18px; padding: 17px 19px; border-left: 3px solid var(--cyan); background: #0d1e2d; color: var(--muted); }
+    .detail strong { display: block; color: var(--ink); margin-bottom: 4px; }
+
+    .stack { display: grid; gap: 14px; }
+    .architecture-layer { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 20px; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); cursor: pointer; transition: border-color .2s, background .2s; }
+    .architecture-layer:hover, .architecture-layer.active { border-color: var(--cyan); background: #19394a; }
+    .layer-tag { color: var(--cyan); font-weight: 800; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; }
+    .architecture-layer p { margin: 3px 0 0; color: var(--muted); }
+
+    .workflow { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 18px; align-items: start; }
+    .workflow-col { display: grid; gap: 10px; }
+    .workflow-title { padding: 8px 12px; color: var(--muted); font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .flow-card { padding: 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); text-align: center; font-weight: 700; cursor: pointer; transition: transform .2s, border-color .2s; }
+    .flow-card:hover { transform: translateY(-3px); border-color: var(--cyan); }
+    .developer .flow-card { border-left: 3px solid var(--blue); }
+    .automated .flow-card { border-left: 3px solid var(--green); }
+    .human .flow-card { border-left: 3px solid var(--amber); }
+    .deploy .flow-card { border-left: 3px solid var(--coral); }
+    .flow-arrow { text-align: center; color: var(--muted); font-size: 1.4rem; line-height: 1; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; color: var(--muted); font-size: .82rem; }
+    .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 3px; }
+
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .agent-card { min-height: 240px; padding: 20px; border: 1px solid var(--line); border-top: 3px solid var(--cyan); border-radius: 11px; background: var(--panel); cursor: pointer; transition: transform .2s, background .2s; }
+    .agent-card:nth-child(2) { border-top-color: var(--coral); }
+    .agent-card:nth-child(3) { border-top-color: var(--amber); }
+    .agent-card:nth-child(4) { border-top-color: var(--green); }
+    .agent-card:hover, .agent-card.open { transform: translateY(-4px); background: var(--panel-2); }
+    .agent-card p { color: var(--muted); font-size: .9rem; }
+    .agent-card ul { padding-left: 18px; color: var(--muted); font-size: .86rem; }
+    .agent-id { color: var(--cyan); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+    .skill-list { display: none; padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+    .agent-card.open .skill-list { display: block; }
+
+    .routing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .route { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .route code { display: inline-block; padding: 4px 7px; color: var(--cyan); background: #0b1c29; border-radius: 5px; }
+    .route p { margin: 12px 0 0; color: var(--muted); }
+
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--line); }
+    .compare-col { padding: 22px; background: var(--panel); }
+    .compare-col h3 { margin-bottom: 14px; }
+    .compare-col:first-child h3 { color: var(--green); }
+    .compare-col:last-child h3 { color: var(--amber); }
+    .compare-col li { margin: 8px 0; color: var(--muted); }
+    .rule { margin-top: 18px; padding: 17px; border-left: 3px solid var(--amber); color: var(--ink); background: #282c27; }
+
+    .governance { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .gov-panel { padding: 24px; }
+    .never { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .never span { padding: 7px 9px; border: 1px solid #713f45; border-radius: 6px; color: #ffb2a4; background: #301e28; font-size: .78rem; }
+    .decision { display: grid; grid-template-columns: 1fr 36px 1fr; align-items: center; gap: 10px; margin-top: 22px; }
+    .decision-box { padding: 15px; border: 1px solid var(--line); background: #0e2130; text-align: center; }
+    .decision-box strong { display: block; color: var(--cyan); }
+    .decision-arrow { color: var(--amber); text-align: center; font-size: 1.3rem; }
+
+    .tree-layout { display: grid; grid-template-columns: 1fr .85fr; gap: 18px; }
+    .tree { padding: 20px; min-height: 350px; font-family: Consolas, monospace; color: var(--muted); background: #0b1925; }
+    .tree-item { display: block; padding: 5px 8px; color: var(--muted); border-radius: 4px; cursor: pointer; }
+    .tree-item:hover, .tree-item.selected { color: var(--ink); background: #1d3b4d; }
+    .tree-item span { color: var(--cyan); }
+    .tree-detail { padding: 22px; }
+    .tree-detail h3 { color: var(--cyan); }
+    .tree-detail p { color: var(--muted); }
+
+    .principles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .principle { padding: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); }
+    .principle strong { color: var(--cyan); }
+    .principle p { margin-bottom: 0; color: var(--muted); font-size: .86rem; }
+
+    .roadmap { display: grid; gap: 10px; max-width: 760px; margin: 0 auto; }
+    .phase { display: grid; grid-template-columns: 110px 1fr 130px; align-items: center; gap: 15px; padding: 15px 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); }
+    .phase.current { border-color: var(--cyan); background: #173646; }
+    .phase.future { border-style: dashed; opacity: .72; }
+    .phase-num { color: var(--cyan); font-weight: 800; }
+    .phase-status { color: var(--green); font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-align: right; text-transform: uppercase; }
+    .future .phase-status { color: var(--amber); }
+
+    footer { width: min(1220px, calc(100% - 36px)); margin: 0 auto; padding: 28px 0 60px; color: var(--muted); border-top: 1px solid var(--line); font-size: .85rem; }
+    footer strong { color: var(--ink); }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .workflow { grid-template-columns: 1fr 1fr; }
+      .deploy { grid-column: 1 / -1; }
+      .routing, .principles { grid-template-columns: repeat(2, 1fr); }
+      .tree-layout, .governance { grid-template-columns: 1fr; }
+      nav { display: none; }
+    }
+    @media (max-width: 560px) {
+      section, .hero { width: min(100% - 24px, 1220px); padding: 60px 0; }
+      .cards, .routing, .principles, .compare, .workflow { grid-template-columns: 1fr; }
+      .deploy { grid-column: auto; }
+      .architecture-layer { grid-template-columns: 1fr; gap: 5px; }
+      .phase { grid-template-columns: 70px 1fr; }
+      .phase-status { grid-column: 2; text-align: left; }
+      h1 { font-size: 2.7rem; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#overview"><span class="brand-mark">AI</span> AI Engineering Golden Path</a>
+    <nav aria-label="Section navigation">
+      <a href="#architecture">Architecture</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#policy">Policies</a>
+      <a href="#agents">Agents</a>
+      <a href="#skills">Skills</a>
+      <a href="#ci">CI/CD</a>
+      <a href="#human">Human Governance</a>
+      <a href="#repository">Repository</a>
+      <a href="#roadmap">Roadmap</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="overview">
+      <div>
+        <div class="eyebrow">Greenfield AI Project Engineering Framework</div>
+        <h1>AI Engineering Golden Path</h1>
+        <p class="hero-copy">A reusable engineering framework for building secure, governed and production-ready AI projects from day one.</p>
+        <div class="badges">
+          <span class="badge">Policy Driven</span>
+          <span class="badge">Secure by Default</span>
+          <span class="badge">CI Enforced</span>
+          <span class="badge">AI Assisted</span>
+          <span class="badge">Human Governed</span>
+        </div>
+      </div>
+      <aside class="lifecycle" aria-label="Golden path lifecycle">
+        <h3>Engineering path</h3>
+        <div class="life-steps">
+          <div class="life-step"><span>01</span> IDE</div>
+          <div class="life-step"><span>02</span> Repository</div>
+          <div class="life-step"><span>03</span> Policy</div>
+          <div class="life-step"><span>04</span> CI</div>
+          <div class="life-step"><span>05</span> Agents</div>
+          <div class="life-step"><span>06</span> Human Review</div>
+          <div class="life-step"><span>07</span> CD</div>
+          <div class="life-step"><span>08</span> Production</div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="architecture">
+      <div class="section-head"><div><div class="kicker">01 / System view</div><h2>Framework architecture</h2></div><p>Click a layer to inspect its role. The core remains technology-neutral; concrete stack and platform behavior belongs in overlays.</p></div>
+      <div class="diagram-panel panel">
+        <svg viewBox="0 0 1100 600" role="img" aria-label="AI Engineering Golden Path architecture layers">
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#5ed7dc" /></marker></defs>
+          <path class="svg-line" marker-end="url(#arrow)" d="M550 104 V144"/><path class="svg-line" marker-end="url(#arrow)" d="M550 206 V246"/><path class="svg-line" marker-end="url(#arrow)" d="M550 308 V348"/><path class="svg-line" marker-end="url(#arrow)" d="M550 410 V450"/><path class="svg-line" marker-end="url(#arrow)" d="M550 512 V552"/>
+          <g class="svg-node" data-detail="experience"><rect x="120" y="38" width="860" height="66" rx="10" fill="#18364a" stroke="#5ed7dc"/><text x="550" y="64" class="svg-label">DEVELOPER EXPERIENCE</text><text x="550" y="86" class="svg-small">IDE / GitHub / GitHub Copilot</text></g>
+          <g class="svg-node" data-detail="repository"><rect x="120" y="144" width="860" height="62" rx="10" fill="#173246" stroke="#79a9ff"/><text x="550" y="169" class="svg-label">REPOSITORY</text><text x="550" y="190" class="svg-small">Source Code  |  Tests  |  AI  |  Data  |  Infrastructure  |  Configuration</text></g>
+          <g class="svg-node" data-detail="policy"><rect x="120" y="246" width="860" height="62" rx="10" fill="#223647" stroke="#f4c66f"/><text x="550" y="271" class="svg-label">POLICY</text><text x="550" y="292" class="svg-small">Repository  |  Architecture  |  DevOps  |  Security  |  Data  |  AI</text></g>
+          <g class="svg-node" data-detail="intelligence"><rect x="120" y="348" width="860" height="62" rx="10" fill="#263648" stroke="#f39182"/><text x="550" y="373" class="svg-label">ENGINEERING INTELLIGENCE</text><text x="550" y="394" class="svg-small">Architecture  |  Security &amp; DevOps  |  AI Engineering  |  Code Quality</text></g>
+          <g class="svg-node" data-detail="cicd"><rect x="120" y="450" width="860" height="62" rx="10" fill="#193a39" stroke="#7ed6a2"/><text x="550" y="475" class="svg-label">CI / CD</text><text x="550" y="496" class="svg-small">Policy  |  Security  |  Quality  |  Tests  |  Build  |  IaC  |  Deploy</text></g>
+          <g class="svg-node" data-detail="human"><rect x="330" y="552" width="440" height="38" rx="10" fill="#3d3422" stroke="#f4c66f"/><text x="550" y="577" class="svg-label">HUMAN APPROVAL &amp; ACCOUNTABILITY</text></g>
+        </svg>
+        <div class="detail" id="architecture-detail"><strong>Click a layer</strong><span>Explore what each layer contributes to the Golden Path.</span></div>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <div class="section-head"><div><div class="kicker">02 / Operating model</div><h2>Developer workflow</h2></div><p>Developer actions, automated checks, AI-assisted review, human decisions, and deployment have distinct responsibilities.</p></div>
+      <div class="workflow">
+        <div class="workflow-col developer"><div class="workflow-title">Developer actions</div><div class="flow-card">Work item</div><div class="flow-arrow">↓</div><div class="flow-card">Feature branch</div><div class="flow-arrow">↓</div><div class="flow-card">Develop &amp; test</div><div class="flow-arrow">↓</div><div class="flow-card">Local validation</div><div class="flow-arrow">↓</div><div class="flow-card">Commit &amp; push</div></div>
+        <div class="workflow-col automated"><div class="workflow-title">Automated and assisted review</div><div class="flow-card">Pull Request</div><div class="flow-arrow">↓</div><div class="flow-card">Policy / security / quality / tests / IaC</div><div class="flow-arrow">↓</div><div class="flow-card">AI-assisted review</div><div class="flow-arrow">↓</div><div class="flow-card">Evidence and findings</div><div class="flow-arrow">↓</div><div class="flow-card">Human review</div></div>
+        <div class="workflow-col deploy"><div class="workflow-title">Human decision and delivery</div><div class="flow-card">Approve</div><div class="flow-arrow">↓</div><div class="flow-card">Merge to protected main</div><div class="flow-arrow">↓</div><div class="flow-card">Build immutable artifact</div><div class="flow-arrow">↓</div><div class="flow-card">DEV → TEST / UAT</div><div class="flow-arrow">↓</div><div class="flow-card">Production approval → PROD</div></div>
+      </div>
+      <div class="legend"><span><i style="background:var(--blue)"></i>Developer</span><span><i style="background:var(--green)"></i>Automated / AI-assisted</span><span><i style="background:var(--amber)"></i>Human decision</span><span><i style="background:var(--coral)"></i>Deployment</span></div>
+    </section>
+
+    <section id="policy">
+      <div class="section-head"><div><div class="kicker">03 / Source of truth</div><h2>Policy → skill → agent</h2></div><p>Policies define intent. Skills define a focused analysis. Agents select relevant skills. Humans retain accountability.</p></div>
+      <div class="stack">
+        <div class="architecture-layer active" data-detail="policy"><div class="layer-tag">Policy</div><p><strong>WHAT must be true.</strong> Stable IDs, MUST / SHOULD / MAY language, exceptions, owners, and automation candidates.</p></div>
+        <div class="architecture-layer" data-detail="skill"><div class="layer-tag">Skill</div><p><strong>HOW to check it.</strong> A reusable analysis contract with inputs, procedure, output, severity, confidence, and human review.</p></div>
+        <div class="architecture-layer" data-detail="agent"><div class="layer-tag">Agent</div><p><strong>WHICH skills should run.</strong> Contextual routing and consolidated findings, always advisory.</p></div>
+        <div class="architecture-layer" data-detail="workflow"><div class="layer-tag">Workflow</div><p><strong>WHEN to run.</strong> PR context, changed paths, policies, CI results, and developer evidence.</p></div>
+        <div class="architecture-layer" data-detail="human"><div class="layer-tag">Human</div><p><strong>WHO decides.</strong> Risk, exceptions, production, IAM, architecture, security, data, AI, and merge accountability.</p></div>
+      </div>
+      <div class="detail" id="policy-detail"><strong>Policy</strong><span>Defines WHAT must be true.</span></div>
+      <div class="panel" style="margin-top:18px;padding:18px"><strong>Example: SEC-001</strong><span style="color:var(--muted)"> → Secret Review Skill → Security &amp; DevOps Agent → Pull Request → Human escalation when required.</span></div>
+    </section>
+
+    <section id="agents">
+      <div class="section-head"><div><div class="kicker">04 / Engineering intelligence</div><h2>Four custom agents</h2></div><p>These are repository contracts for advisory domain review, not autonomous replacements for CI, GitHub, or human governance. Click a card to expand its actual skills.</p></div>
+      <div class="cards">
+        <article class="agent-card" tabindex="0"><div class="agent-id">ARCH-AGENT-001</div><h3>Architecture Agent</h3><p>Architecture, dependencies, APIs, boundaries, data contracts, ADRs.</p><ul><li>Architecture review</li><li>Dependency analysis</li><li>ADR review</li></ul><div class="skill-list">Read-only by default. Escalates material design and boundary decisions to architecture owners.</div></article>
+        <article class="agent-card" tabindex="0"><div class="agent-id">SEC-DEVOPS-AGENT-001</div><h3>Security &amp; DevOps Agent</h3><p>Security, IAM, secrets, CI/CD, IaC, environments, deployment and rollback.</p><ul><li>Secret / IAM / dependency review</li><li>CI / CD / IaC review</li></ul><div class="skill-list">Cannot access production credentials, change IAM, suppress scanners, approve deployment, or override deterministic controls.</div></article>
+        <article class="agent-card" tabindex="0"><div class="agent-id">AI-AGENT-001</div><h3>AI Engineering Agent</h3><p>Models, prompts, RAG, evaluations, guardrails, cost and AI risk.</p><ul><li>Model review</li><li>Prompt review</li><li>Evaluation review</li></ul><div class="skill-list">Escalates consequential, unsafe, sensitive, or irreversible AI behavior to humans.</div></article>
+        <article class="agent-card" tabindex="0"><div class="agent-id">QUAL-AGENT-001</div><h3>Code Quality Agent</h3><p>Maintainability, tests, complexity, duplication, documentation and errors.</p><ul><li>Code review</li><li>Test review</li></ul><div class="skill-list">Does not replace formatting, linting, or deterministic tests and cannot waive their results.</div></article>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="section-head"><div><div class="kicker">05 / Reusable analysis</div><h2>Skills and change-aware routing</h2></div><p>The routing contract in <code>config/ai/agent-routing.yaml</code> selects relevant agents by changed paths. It is advisory configuration, not an executable runtime.</p></div>
+      <div class="routing">
+        <div class="route"><code>src/ / tests/</code><p>Code Quality + Architecture</p></div>
+        <div class="route"><code>infrastructure/</code><p>Security &amp; DevOps</p></div>
+        <div class="route"><code>ai/ / evaluations/</code><p>AI Engineering + Security &amp; DevOps</p></div>
+        <div class="route"><code>data/ / contracts</code><p>Architecture + Security &amp; DevOps + AI when relevant</p></div>
+        <div class="route"><code>.github/workflows/</code><p>Security &amp; DevOps</p></div>
+        <div class="route"><code>policies/ / docs/adr/</code><p>Architecture</p></div>
+      </div>
+      <div class="panel" style="margin-top:18px;padding:20px"><strong>Implemented skill families</strong><p style="color:var(--muted);margin-bottom:0">Architecture: architecture review, dependency analysis, ADR review. Security: secret, IAM, dependency review. DevOps: CI, CD, IaC review. AI: model, prompt, evaluation review. Quality: code and test review. Fourteen versioned <code>SKILL.md</code> contracts exist under <code>skills/</code>.</p></div>
+    </section>
+
+    <section id="ci">
+      <div class="section-head"><div><div class="kicker">06 / Enforcement boundary</div><h2>Deterministic CI vs AI assistance</h2></div><p>Contextual reasoning is valuable, but reliable rules belong in deterministic checks first.</p></div>
+      <div class="compare">
+        <div class="compare-col"><h3>Deterministic CI / CD</h3><ul><li>Repository and policy validation</li><li>Formatting, linting, and tests</li><li>Secret and dependency scanning</li><li>SAST, IaC, and container checks when applicable</li><li>Artifact digest verification</li><li>Environment and deployment protections</li></ul></div>
+        <div class="compare-col"><h3>AI-assisted agents</h3><ul><li>Architecture reasoning</li><li>Trade-off analysis</li><li>Contextual security review</li><li>AI design and evaluation review</li><li>Code quality reasoning</li><li>Recommendations and explanations</li></ul></div>
+      </div>
+      <div class="rule"><strong>Rule of thumb:</strong> if it can be reliably checked deterministically, prefer CI. Use agents where contextual reasoning adds value.</div>
+    </section>
+
+    <section id="human">
+      <div class="section-head"><div><div class="kicker">07 / Governance</div><h2>Human-in-the-loop</h2></div><p>Agents can identify risk, but accountability stays with qualified humans for defined decisions.</p></div>
+      <div class="governance">
+        <div class="gov-panel panel"><h3>Agent finding path</h3><div class="decision"><div class="decision-box"><strong>AI Agent</strong>Finding</div><div class="decision-arrow">→</div><div class="decision-box"><strong>Human Review</strong>Evidence and context</div></div><div class="decision"><div class="decision-box"><strong>Accept</strong>Required action</div><div class="decision-arrow">or</div><div class="decision-box"><strong>Challenge</strong>Investigate / reject</div></div></div>
+        <div class="gov-panel panel"><h3>Never autonomous</h3><p style="color:var(--muted)">The agent layer cannot bypass deterministic controls or replace approval.</p><div class="never"><span>Production approval</span><span>Policy exceptions</span><span>IAM grants</span><span>PR merge</span><span>Security override</span><span>Risk acceptance</span></div></div>
+      </div>
+    </section>
+
+    <section id="repository">
+      <div class="section-head"><div><div class="kicker">08 / Context as code</div><h2>Repository structure</h2></div><p>Click an area to see why it exists in the Golden Path.</p></div>
+      <div class="tree-layout">
+        <div class="tree panel">
+          <span class="tree-item selected" data-tree="root">/</span>
+          <span class="tree-item" data-tree="policies">├── <span>policies/</span></span>
+          <span class="tree-item" data-tree="agents">├── <span>agents/</span></span>
+          <span class="tree-item" data-tree="skills">├── <span>skills/</span></span>
+          <span class="tree-item" data-tree="github">├── <span>.github/</span></span>
+          <span class="tree-item" data-tree="source">├── <span>src/</span> / <span>tests/</span></span>
+          <span class="tree-item" data-tree="ai">├── <span>ai/</span></span>
+          <span class="tree-item" data-tree="infra">├── <span>infrastructure/</span></span>
+          <span class="tree-item" data-tree="config">├── <span>config/</span> / <span>scripts/</span></span>
+          <span class="tree-item" data-tree="docs">├── <span>docs/</span></span>
+          <span class="tree-item" data-tree="context">├── AGENTS.md / ARCHITECTURE.md</span>
+          <span class="tree-item" data-tree="context">└── SECURITY.md / AI_POLICY.md / DATA_POLICY.md</span>
+        </div>
+        <div class="tree-detail panel" id="tree-detail"><h3>Repository context</h3><p>Version-controlled structure, policies, workflow contracts, enforcement hooks, AI assets, and review contracts form the reusable foundation.</p></div>
+      </div>
+    </section>
+
+    <section id="promotion">
+      <div class="section-head"><div><div class="kicker">09 / Delivery</div><h2>Build once, promote the same artifact</h2></div><p>Phase 5 implements the generic artifact manifest, digest verification, promotion order, and overlay hooks. Actual platform deployment remains unconfigured.</p></div>
+      <div class="diagram-panel panel">
+        <svg viewBox="0 0 1000 220" role="img" aria-label="Environment promotion flow">
+          <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#5ed7dc" /></marker></defs>
+          <path class="svg-line" marker-end="url(#arrow2)" d="M180 100 H300"/><path class="svg-line" marker-end="url(#arrow2)" d="M400 100 H520"/><path class="svg-line" marker-end="url(#arrow2)" d="M620 100 H740"/><path class="svg-line" marker-end="url(#arrow2)" d="M820 100 H930"/>
+          <g class="svg-node" data-detail="artifact"><rect x="25" y="66" width="155" height="68" rx="9" fill="#18364a" stroke="#79a9ff"/><text x="102" y="94" class="svg-label">MERGE</text><text x="102" y="116" class="svg-small">Build artifact</text></g>
+          <g class="svg-node" data-detail="artifact"><rect x="300" y="66" width="155" height="68" rx="9" fill="#173a39" stroke="#7ed6a2"/><text x="377" y="94" class="svg-label">DEV</text><text x="377" y="116" class="svg-small">Verify digest</text></g>
+          <g class="svg-node" data-detail="artifact"><rect x="520" y="66" width="155" height="68" rx="9" fill="#223647" stroke="#f4c66f"/><text x="597" y="94" class="svg-label">TEST / UAT</text><text x="597" y="116" class="svg-small">Validate</text></g>
+          <g class="svg-node" data-detail="human"><rect x="740" y="66" width="155" height="68" rx="9" fill="#3d3422" stroke="#f4c66f"/><text x="817" y="94" class="svg-label">APPROVAL</text><text x="817" y="116" class="svg-small">Human gate</text></g>
+          <g class="svg-node" data-detail="artifact"><rect x="930" y="66" width="60" height="68" rx="9" fill="#3c262d" stroke="#f39182"/><text x="960" y="104" class="svg-label">PROD</text></g>
+        </svg>
+        <div class="detail" id="promotion-detail"><strong>Traceability</strong><span>Artifact manifest → commit SHA → pull request → reviewers → CI results → deployment record. The deployment adapter is FUTURE until a stack overlay is selected.</span></div>
+      </div>
+    </section>
+
+    <section id="principles">
+      <div class="section-head"><div><div class="kicker">10 / Operating principles</div><h2>Engineering principles</h2></div><p>The framework favors explicit, auditable controls over platform complexity.</p></div>
+      <div class="principles">
+        <div class="principle"><strong>Secure by default</strong><p>Security controls exist from repository creation.</p></div>
+        <div class="principle"><strong>Policy driven</strong><p>Stable IDs connect intent to future enforcement.</p></div>
+        <div class="principle"><strong>Deterministic before AI</strong><p>Reliable rules belong in CI/CD.</p></div>
+        <div class="principle"><strong>Human accountable</strong><p>High-risk decisions require qualified people.</p></div>
+        <div class="principle"><strong>Least privilege</strong><p>Access, identities, and agents get only what they need.</p></div>
+        <div class="principle"><strong>Technology neutral</strong><p>Overlays add stack and platform specifics.</p></div>
+        <div class="principle"><strong>Reusable</strong><p>Projects share the same safe starting path.</p></div>
+        <div class="principle"><strong>Traceable</strong><p>Changes, artifacts, approvals, and deployments connect.</p></div>
+        <div class="principle"><strong>Fail safely</strong><p>Uncertainty escalates instead of silently passing.</p></div>
+        <div class="principle"><strong>Simple by default</strong><p>Small, reviewable controls beat unnecessary orchestration.</p></div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="section-head"><div><div class="kicker">11 / Maturity</div><h2>Current and future</h2></div><p>Phase status reflects repository evidence, not ambition.</p></div>
+      <div class="roadmap">
+        <div class="phase current"><div class="phase-num">PHASE 1</div><strong>Repository Skeleton</strong><div class="phase-status">Current</div></div>
+        <div class="phase current"><div class="phase-num">PHASE 2</div><strong>Engineering Policies</strong><div class="phase-status">Current</div></div>
+        <div class="phase current"><div class="phase-num">PHASE 3</div><strong>Developer Workflow</strong><div class="phase-status">Current</div></div>
+        <div class="phase current"><div class="phase-num">PHASE 4</div><strong>CI Enforcement</strong><div class="phase-status">Core</div></div>
+        <div class="phase current"><div class="phase-num">PHASE 5</div><strong>CD + IaC Foundation</strong><div class="phase-status">Foundation</div></div>
+        <div class="phase current"><div class="phase-num">PHASE 6</div><strong>Agents + Skills</strong><div class="phase-status">Contracts</div></div>
+        <div class="phase future"><div class="phase-num">PHASE 7</div><strong>AI Governance + Evaluation</strong><div class="phase-status">Future</div></div>
+        <div class="phase future"><div class="phase-num">PHASE 8</div><strong>Observability + Learning Loop</strong><div class="phase-status">Future</div></div>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="section-head"><div><div class="kicker">12 / Rationale</div><h2>Why this architecture?</h2></div><p>Each layer has a deliberately narrow responsibility.</p></div>
+      <div class="cards">
+        <article class="agent-card"><h3>Why policies?</h3><p>To make engineering intent explicit, reviewable, and reusable.</p></article>
+        <article class="agent-card"><h3>Why CI?</h3><p>To deterministically enforce rules that can be reliably automated.</p></article>
+        <article class="agent-card"><h3>Why agents and skills?</h3><p>To add contextual reasoning and reusable analysis where automation alone is not enough.</p></article>
+        <article class="agent-card"><h3>Why humans?</h3><p>To retain judgment and accountability for risk, exceptions, and production.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer><strong>AI Engineering Golden Path</strong> · Repository architecture visualization · Phase 1–6 framework contracts, deterministic foundations, and advisory review model.</footer>
+
+  <script>
+    const details = {
+      experience: ["Developer experience", "IDE, GitHub, and GitHub Copilot provide the working surface. Repository context and policy remain authoritative."],
+      repository: ["Repository", "Source, tests, AI assets, infrastructure, configuration, documentation, and governance are version-controlled together."],
+      policy: ["Policy", "Defines WHAT must be true through stable IDs, normative language, exception rules, owners, and automation candidates."],
+      intelligence: ["Engineering intelligence", "Four advisory agents select relevant skills and provide contextual findings. They do not replace deterministic controls."],
+      cicd: ["CI / CD", "CI validates deterministic rules and CD builds, verifies, and promotes artifacts through environment hooks."],
+      human: ["Human accountability", "Qualified humans approve risk, exceptions, production, IAM, architecture, security, data, AI, and merge decisions."],
+      skill: ["Skill", "Defines HOW a focused analysis is performed, including inputs, procedure, evidence, severity, confidence, and human review."],
+      agent: ["Agent", "Determines WHICH skills are relevant based on changed paths, policies, declared impact, and available evidence."],
+      workflow: ["Workflow", "Defines WHEN checks and reviews happen across development, pull requests, CI, deployment, and operations."],
+      artifact: ["Artifact promotion", "Phase 5 creates a manifest and digest, then verifies the same immutable artifact in DEV, TEST/UAT, and PROD."],
+    };
+    const architectureDetail = document.querySelector("#architecture-detail");
+    const policyDetail = document.querySelector("#policy-detail");
+    const promotionDetail = document.querySelector("#promotion-detail");
+    function showDetail(target, key) {
+      const item = details[key];
+      if (!item || !target) return;
+      target.innerHTML = `<strong>${item[0]}</strong><span>${item[1]}</span>`;
+    }
+    document.querySelectorAll(".svg-node").forEach(node => {
+      node.addEventListener("click", () => {
+        document.querySelectorAll(".svg-node").forEach(item => item.classList.remove("selected"));
+        node.classList.add("selected");
+        showDetail(architectureDetail, node.dataset.detail);
+        if (node.dataset.detail === "artifact" || node.dataset.detail === "human") showDetail(promotionDetail, node.dataset.detail);
+      });
+    });
+    document.querySelectorAll(".architecture-layer").forEach(layer => {
+      layer.addEventListener("click", () => {
+        document.querySelectorAll(".architecture-layer").forEach(item => item.classList.remove("active"));
+        layer.classList.add("active");
+        showDetail(policyDetail, layer.dataset.detail);
+      });
+    });
+    document.querySelectorAll(".agent-card").forEach(card => {
+      card.addEventListener("click", () => card.classList.toggle("open"));
+      card.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); card.classList.toggle("open"); } });
+    });
+    const treeDetails = {
+      root: ["Repository context", "Version-controlled structure, policies, workflow contracts, enforcement hooks, AI assets, and review contracts form the reusable foundation."],
+      policies: ["policies/", "Normative engineering policies with stable IDs across repository, architecture, DevOps, security, data, and AI domains."],
+      agents: ["agents/", "Four formal advisory agent contracts: Architecture, Security & DevOps, AI Engineering, and Code Quality."],
+      skills: ["skills/", "Fourteen reusable SKILL.md analysis contracts selected by agents through configurable routing."],
+      github: [".github/", "Pull request governance, CODEOWNERS, issue templates, branch guidance, and CI/CD workflow integration."],
+      source: ["src/ and tests/", "Technology-neutral locations for project code, service contracts, and unit/integration/end-to-end tests."],
+      ai: ["ai/", "Versioned model, prompt, evaluation, and guardrail assets with AI policy controls."],
+      infra: ["infrastructure/", "IaC modules and isolated DEV, TEST, and PROD environment composition points."],
+      config: ["config/ and scripts/", "Non-secret project/CI configuration plus bootstrap, validation, security, artifact, deployment, and rollback hooks."],
+      docs: ["docs/", "Architecture, developer workflow, governance, ADRs, deployment, IaC, observability, and agent/skill context."],
+      context: ["Context documents", "AGENTS.md, ARCHITECTURE.md, SECURITY.md, AI_POLICY.md, DATA_POLICY.md, and CONTRIBUTING.md define the repository context."],
+    };
+    document.querySelectorAll(".tree-item").forEach(item => item.addEventListener("click", () => {
+      document.querySelectorAll(".tree-item").forEach(node => node.classList.remove("selected"));
+      item.classList.add("selected");
+      const data = treeDetails[item.dataset.tree];
+      document.querySelector("#tree-detail").innerHTML = `<h3>${data[0]}</h3><p>${data[1]}</p>`;
+    }));
+    const sections = [...document.querySelectorAll("main section[id]")];
+    const navLinks = [...document.querySelectorAll("nav a")];
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`));
+    }), { rootMargin: "-35% 0px -55% 0px" });
+    sections.forEach(section => observer.observe(section));
+  </script>
+</body>
+</html>
