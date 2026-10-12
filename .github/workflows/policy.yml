@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Validate repository structure and ownership
-        run: bash scripts/validate-repository.sh
+        run: bash scripts/validate.sh
       - name: Validate policy IDs and references
         run: bash scripts/validate-policies.sh
       - name: Validate exceptions

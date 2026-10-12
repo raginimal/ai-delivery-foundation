@@ -22,13 +22,12 @@ optional-assets:
 
 validate:
 	bash scripts/validate.sh
-	bash scripts/validate-repository.sh
 	bash scripts/validate-policies.sh
 	bash scripts/validate-baseline.sh
 	bash scripts/test-baseline-guard.sh
 
 validate-repository:
-	bash scripts/validate-repository.sh
+	bash scripts/validate.sh
 
 policy-check:
 	bash scripts/validate-policies.sh
