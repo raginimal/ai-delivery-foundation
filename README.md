@@ -1,14 +1,14 @@
-# AI Engineering Golden Path
+# Agentic Development and DevOps Framework
 
-Reusable greenfield AI project engineering framework for developers, architects, security engineers, DevOps engineers, data specialists, AI engineers, and project leads.
+Reusable framework for building agentic features with GitHub Copilot while keeping architecture, security, DevOps, and human accountability explicit.
 
-The goal is simple: **make the correct engineering path the easiest path for new AI projects.**
+The goal is simple: **make the correct engineering path the easiest path for agentic development.**
 
 ## Overview
 
 This repository is a technology-neutral reusable project skeleton, not an application. It provides a repeatable foundation for:
 
-- Repository structure and developer context
+- Repository structure and shared Copilot context
 - Engineering, architecture, DevOps, security, data, and AI policies
 - Developer workflow, branching, pull requests, ownership, and risk review
 - Deterministic CI and policy enforcement
@@ -17,11 +17,11 @@ This repository is a technology-neutral reusable project skeleton, not an applic
 
 It standardizes the starting point without removing engineering judgment. Project teams still choose their stack, platform, data boundaries, model providers, thresholds, and accountable owners.
 
-## The Problem
+## Core Problem and Idea
 
-Greenfield AI projects often begin with inconsistent repository structures, late security controls, undocumented architecture, uneven CI/CD, inconsistent AI usage, and different practices for developers using AI assistants. Policies may exist without enforcement, and good patterns are difficult to repeat across teams.
+Agentic projects move quickly, but speed can create inconsistent repository structures, undocumented architecture, weak security boundaries, uneven CI/CD, and unclear ownership of AI-generated changes. A team of ten developers needs a shared way to plan, build, review, and ship without turning every feature into a platform project.
 
-This framework turns those expectations into version-controlled context, policy IDs, developer workflows, deterministic checks, review contracts, and explicit human approval boundaries.
+The idea is to put the guardrails in the repository: shared Copilot context, a version-controlled architecture baseline, reusable review agents and skills, deterministic CI checks, and explicit human approval points. Copilot helps with discovery and implementation; CI and humans remain authoritative for correctness, risk, architecture, and release decisions.
 
 ## Core Principle
 
@@ -31,7 +31,7 @@ A greenfield project records its approved architecture baseline at inception in 
 
 The baseline ships as a technology-neutral `draft`. The architecture owner completes it and sets `status: approved` before the ADR requirement is enforced.
 
-## The Golden Path
+## Framework Idea
 
 ```text
 Project
@@ -49,7 +49,7 @@ Project
 
 Engineering standards are embedded in normal development and review rather than treated as a separate compliance activity.
 
-## Developer Golden Path
+## Framework at a Glance
 
 Policies say what must be true; the [Developer DevOps Golden Path](docs/developer/devops-developer-guide.html) says what a developer does, from starting a feature to getting it safely into production.
 
@@ -179,7 +179,7 @@ Phases 1–6 are the current target scope. “Implemented” means the correspon
 
 The Architecture Baseline is integrated into these phases rather than added as a new one: the baseline and its `ARCH-BL-*` policies belong to Phase 2, the ADR and approval workflow to Phase 3, the Baseline Guard to Phase 4, and the baseline impact review (`ARCH-SK-001`) and routing to Phase 6.
 
-## Repository Structure
+## Repo Layout
 
 ```text
 .
@@ -237,7 +237,7 @@ Policy domains include:
 
 For example, `SEC-SEC-001` prohibits secrets in Git, while `AI-AGT-001` keeps agents advisory. Policy exceptions require documented risk, mitigation, owner, approver, and expiry. See [policies/](policies/) and [docs/governance/exceptions.md](docs/governance/exceptions.md).
 
-## Developer Workflow
+## How a Feature Flows (End to End)
 
 ```text
 Work Item
@@ -264,6 +264,31 @@ The workflow is supported by:
 - Review routing in [docs/governance/approval-matrix.md](docs/governance/approval-matrix.md)
 - Architecture baseline impact and ADRs in [docs/developer-workflow.md](docs/developer-workflow.md) and [docs/adr/](docs/adr/)
 - Exceptions in [docs/governance/exceptions.md](docs/governance/exceptions.md)
+
+The end-to-end sequence is:
+
+1. **Issue:** define the user outcome, acceptance criteria, risk, and likely policy or architecture impact.
+2. **Branch:** create `feature/<issue>-<name>`, `bugfix/<issue>-<name>`, or `hotfix/<incident>-<name>` from current `main`.
+3. **Plan:** use the repository context, applicable policies, the architecture baseline, and Copilot to identify the smallest implementation and test plan.
+4. **Implement:** make the change in the selected stack overlay, keeping secrets out of source control and documenting material decisions.
+5. **Validate locally:** run `bash scripts/check.sh`, targeted tests, and `bash scripts/validate-baseline.sh` when architecture paths may be affected.
+6. **Open a PR:** complete the PR template, disclose AI assistance, classify risk, link evidence, and request CODEOWNER and specialist reviews.
+7. **Run CI:** deterministic repository, policy, quality, security, architecture, and applicable infrastructure checks execute on the pull request.
+8. **Review:** the relevant advisory agents provide evidence-based recommendations; CODEOWNERS and required human specialists make the accountable decisions.
+9. **Merge:** merge only after required checks and human approvals pass on protected `main`.
+10. **Deliver:** build one immutable artifact, promote it through DEV and TEST/UAT, obtain production approval, verify health, and retain rollback evidence.
+
+## Copilot in the Daily Workflow
+
+Use Copilot as a fast engineering partner inside the workflow, not as an approval system:
+
+- **Understand:** ask Copilot to summarize the issue, identify relevant files, policies, owners, tests, and architecture-baseline paths. Verify its references against the repository.
+- **Plan:** ask for a small implementation plan and likely failure cases. Keep the plan aligned with the issue, selected stack, and approved architecture.
+- **Build:** use Copilot to draft focused code, tests, documentation, and configuration. Treat generated output as untrusted until reviewed.
+- **Review locally:** ask Copilot to inspect the diff for correctness, security, data handling, observability, duplication, and missing tests. Run deterministic checks yourself.
+- **Prepare the PR:** use Copilot to summarize the change, map policy IDs, identify risk, and check the PR template. Do not let it invent evidence or approvals.
+- **Respond to review:** use Copilot to explain CI failures and propose fixes, then confirm the fix with the same deterministic check that failed.
+- **Keep boundaries clear:** Copilot may recommend and draft; CI enforces deterministic rules; human owners approve architecture changes, exceptions, risk acceptance, merges, and production.
 
 ## CI/CD and Enforcement
 
@@ -386,7 +411,7 @@ The repository defines least privilege, external secret management, dependency s
 
 Agent governance specifically requires read-only default operation, no production credentials, no unrestricted writes, untrusted-context handling, versioning, evidence, and human escalation.
 
-## Using the Skeleton for a New AI Project
+## How We Build a Greenfield Project
 
 1. Create a new repository from this skeleton.
 2. Read [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md), and the applicable policies.
