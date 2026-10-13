@@ -1,8 +1,8 @@
 # Agentic Development and DevOps Framework
 
-Reusable framework for building agentic features with GitHub Copilot while keeping architecture, security, DevOps, and human accountability explicit.
+A reusable framework for agentic development with GitHub Copilot, with clear guidance for architecture, security, DevOps, and human accountability.
 
-The goal is simple: **make the correct engineering path the easiest path for agentic development.**
+The goal is simple: make the right engineering practices the easiest way to build and deliver agentic software.
 
 ## Overview
 
@@ -12,7 +12,7 @@ This repository is a technology-neutral reusable project skeleton, not an applic
 - Engineering, architecture, DevOps, security, data, and AI policies
 - Developer workflow, branching, pull requests, ownership, and risk review
 - Deterministic CI and policy enforcement
-- Artifact provenance, environment promotion, IaC boundaries, and rollback hooks
+- Environment promotion, IaC boundaries, and rollback hooks
 - Custom advisory agents and reusable analysis skills
 
 It standardizes the starting point without removing engineering judgment. Project teams still choose their stack, platform, data boundaries, model providers, thresholds, and accountable owners.
@@ -162,23 +162,6 @@ A normal feature needs no ADR. An architecture change uses the existing ADR mech
 | Change prompt wording only | `ai/prompts/` | `NO_BASELINE_IMPACT` unless it is a protected `*contract*` prompt | Normal review |
 | Change deployment architecture | `infrastructure/` (Terraform, `cd.yml`) | `ARCHITECTURE_CHANGE` | Security & DevOps + Architecture agents, ADR, human approval |
 
-## Engineering Lifecycle and Status
-
-| Phase | Capability | Status |
-|---|---|---|
-| Phase 1 | Repository Skeleton | Implemented |
-| Phase 2 | Policies and Architecture Principles (Engineering, DevOps, Security, Data, AI), including the Architecture Baseline | Implemented |
-| Phase 3 | Developer Workflow and Repository Governance, including ADR and approval routing | Implemented as documentation and governance |
-| Phase 4 | CI and Deterministic Enforcement, including the Architecture Baseline Guard | Core implemented; stack-specific checks conditional |
-| Phase 5 | CD, Environments, and IaC | Foundation implemented; platform deployment remains an overlay |
-| Phase 6 | Agents, Skills, and Change-Aware Engineering | Contracts and policies implemented; advisory only |
-| Phase 7 | AI Governance and Evaluation | Future |
-| Phase 8 | Observability and Learning Loop | Future extension |
-
-Phases 1–6 are the current target scope. “Implemented” means the corresponding repository foundation exists; it does not mean every project-specific tool, owner, cloud environment, or runtime adapter is configured.
-
-The Architecture Baseline is integrated into these phases rather than added as a new one: the baseline and its `ARCH-BL-*` policies belong to Phase 2, the ADR and approval workflow to Phase 3, the Baseline Guard to Phase 4, and the baseline impact review (`ARCH-SK-001`) and routing to Phase 6.
-
 ## Repo Layout
 
 ```text
@@ -253,6 +236,35 @@ Work Item
 	-> Merge
 	-> Deployment
 ```
+
+### Branching Strategy
+
+This repository uses a simple pull-request branching model. `main` is protected and always represents the releasable codebase. Developers create a short-lived branch for one work item, keep it current with `main`, and merge it only after checks and required reviews pass.
+
+```mermaid
+gitGraph
+	commit id: "main: current"
+	branch feature/123-add-ai-feature
+	checkout feature/123-add-ai-feature
+	commit id: "Build AI feature"
+	commit id: "Add tests"
+	checkout main
+	merge feature/123-add-ai-feature tag: "PR + CI + review"
+	commit id: "Deployable main"
+	branch hotfix/456-production-fix
+	checkout hotfix/456-production-fix
+	commit id: "Fix production issue"
+	checkout main
+	merge hotfix/456-production-fix tag: "Hotfix review"
+```
+
+Use these branch names:
+
+- `feature/<issue>-<short-name>` for new capabilities
+- `bugfix/<issue>-<short-name>` for corrective changes
+- `hotfix/<incident>-<short-name>` for urgent production recovery
+
+Direct commits and force pushes to `main` are prohibited. Squash merge is the default for focused changes, and merged branches should be deleted. Release branches are not part of the default model; introduce one only with an ADR and release-owner approval. See [.github/BRANCHING.md](.github/BRANCHING.md) for the complete rules.
 
 The workflow is supported by:
 
@@ -530,3 +542,21 @@ The core uses Bash scripts. Git Bash is supported on Windows; WSL is optional, a
 Policies are owned by their documented domain owners. Repository maintainers and CODEOWNERS review governance changes. Agent and skill changes are versioned repository changes because they can affect engineering review outcomes.
 
 Exceptions use the standard exception template, require an owner, risk, mitigation, authorized approver, and expiry or review date, and cannot be approved by an agent. Ownership boundaries and maintenance are defined in [docs/governance/ownership.md](docs/governance/ownership.md).
+
+
+## Engineering Lifecycle and Status
+
+| Phase | Capability | Status |
+|---|---|---|
+| Phase 1 | Repository Skeleton | Implemented |
+| Phase 2 | Policies and Architecture Principles (Engineering, DevOps, Security, Data, AI), including the Architecture Baseline | Implemented |
+| Phase 3 | Developer Workflow and Repository Governance, including ADR and approval routing | Implemented as documentation and governance |
+| Phase 4 | CI and Deterministic Enforcement, including the Architecture Baseline Guard | Core implemented; stack-specific checks conditional |
+| Phase 5 | CD, Environments, and IaC | Foundation implemented; platform deployment remains an overlay |
+| Phase 6 | Agents, Skills, and Change-Aware Engineering | Contracts and policies implemented; advisory only |
+| Phase 7 | AI Governance and Evaluation | Future |
+| Phase 8 | Observability and Learning Loop | Future extension |
+
+Phases 1–6 are the current target scope. “Implemented” means the corresponding repository foundation exists; it does not mean every project-specific tool, owner, cloud environment, or runtime adapter is configured.
+
+The Architecture Baseline is integrated into these phases rather than added as a new one: the baseline and its `ARCH-BL-*` policies belong to Phase 2, the ADR and approval workflow to Phase 3, the Baseline Guard to Phase 4, and the baseline impact review (`ARCH-SK-001`) and routing to Phase 6.
