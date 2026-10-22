@@ -51,7 +51,7 @@ Engineering standards are embedded in normal development and review rather than 
 
 ## Framework at a Glance
 
-Policies say what must be true; the [Developer DevOps Golden Path](docs/developer/devops-developer-guide.html) says what a developer does, from starting a feature to getting it safely into production.
+Policies say what must be true; the [Developer DevOps Golden Path](docs/architecture/devops-golden-path-guide.html) says what a developer does, from starting a feature to getting it safely into production.
 
 ```text
 Understand requirement -> check architecture and policies -> feature branch -> develop and test
@@ -60,11 +60,37 @@ Understand requirement -> check architecture and policies -> feature branch -> d
 ```
 
 - **Greenfield:** a new project starts from this skeleton and follows the path from the first commit.
-- **Brownfield:** an existing project is not rebuilt. The skeleton is a reference standard for a manual assessment (repository, architecture, DevOps, security, AI engineering), a risk-ranked remediation roadmap, and progressive adoption. The repository contains no assessment tooling.
+- **Brownfield:** an existing project is not rebuilt. The foundation provides assessment and scaffold tooling for a progressive adoption PR, while preserving the project's existing architecture, CI, security, ownership, and deployment decisions.
 - **Minimum GitHub setup:** protected `main`, `CODEOWNERS`, the PR template, CI gates, and environment separation with human production approval. An administrator configures GitHub settings from [docs/administrator-setup.md](docs/administrator-setup.md).
 - **Who does what:** CI enforces deterministic rules, agents provide advisory findings, and humans approve merges, exceptions, architecture changes, and production.
 
-The detailed, visual guide is [docs/developer/devops-developer-guide.html](docs/developer/devops-developer-guide.html).
+The detailed, visual guide is [docs/architecture/devops-golden-path-guide.html](docs/architecture/devops-golden-path-guide.html).
+
+## Foundation commands
+
+The repository includes a `/foundation` Agent Skill for applying this framework to new and existing projects:
+
+```text
+/foundation assess <path>   read-only repository assessment
+/foundation init <path>     plan a new project configuration
+/foundation adopt <path>    plan adoption without overwriting project conventions
+/foundation scaffold <path> plan or add minimal/full foundation files
+/foundation check <path>    run foundation validators and the Plumbline gate
+/foundation policy <paths>  identify relevant policy areas
+/foundation baseline <path> inspect the architecture baseline
+/foundation protect         show administrator branch-protection requirements
+/foundation report <path>   summarize adoption status
+```
+
+Use the [new-project onboarding guide](docs/onboarding/README.md) for greenfield setup and the [existing-project adoption runbook](docs/onboarding/existing-project.md) for brownfield repositories.
+
+When an agent skill is unavailable, use the dependency-free helper directly, for example:
+
+```text
+python skills/foundation/foundation.py assess .
+python skills/foundation/foundation.py check .
+python skills/foundation/foundation.py scaffold "C:/path/to/existing project" --mode minimal
+```
 
 ## Framework Architecture
 
@@ -306,6 +332,12 @@ Use Copilot as a fast engineering partner inside the workflow, not as an approva
 
 ### Deterministic checks
 
+The foundation also vendors a pinned, standard-library-only Plumbline profile. `bash scripts/check.sh` and the
+quality workflow run `scripts/plumbline-check.sh`, which detects common AI-generated defects and risky change shape.
+The profile is deliberately scoped to complement, not replace, the foundation's policy validators and YAML
+architecture baseline. The companion `scripts/plumbline-guard.sh` can be registered as an agent shell-tool hook to
+block merge, approval, force-push, hook-bypass, and protected-branch commands.
+
 The current core includes repository and policy validation, high-confidence secret checks, PR/risk validation hooks, artifact digest verification, and conditional hooks for dependencies, SAST, IaC, containers, tests, and coverage.
 
 The actual GitHub workflows are:
@@ -425,7 +457,7 @@ Agent governance specifically requires read-only default operation, no productio
 
 ## How We Build a Greenfield Project
 
-1. Create a new repository from this skeleton.
+1. Create a new repository from this skeleton; follow the detailed [new-project onboarding guide](docs/onboarding/README.md).
 2. Read [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md), and the applicable policies.
 3. Run `bash scripts/setup.sh` and configure [PROJECT.yaml](PROJECT.yaml).
 4. Replace placeholders in [.github/CODEOWNERS](.github/CODEOWNERS) with approved team or role handles.
@@ -531,7 +563,9 @@ The core uses Bash scripts. Git Bash is supported on Windows; WSL is optional, a
 | [agents/](agents/) | Custom agent definitions |
 | [skills/](skills/) | Reusable engineering skill contracts |
 | [docs/developer-workflow.md](docs/developer-workflow.md) | Developer lifecycle |
-| [docs/developer/devops-developer-guide.html](docs/developer/devops-developer-guide.html) | Developer DevOps Golden Path (Greenfield and Brownfield) |
+| [docs/onboarding/README.md](docs/onboarding/README.md) | New-project setup |
+| [docs/onboarding/existing-project.md](docs/onboarding/existing-project.md) | Existing-project adoption |
+| [docs/architecture/devops-golden-path-guide.html](docs/architecture/devops-golden-path-guide.html) | Developer DevOps Golden Path (Greenfield and Brownfield) |
 | [docs/agents-and-skills.md](docs/agents-and-skills.md) | Agent and skill architecture |
 | [docs/governance/approval-matrix.md](docs/governance/approval-matrix.md) | Required review and approval routing |
 | [docs/deployment.md](docs/deployment.md) | Deployment contract |

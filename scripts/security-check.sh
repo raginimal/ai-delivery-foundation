@@ -13,7 +13,7 @@ patterns=(
   'AIza[0-9A-Za-z_-]{30,}'
 )
 for pattern in "${patterns[@]}"; do
-  if grep -RInE --exclude-dir=.git --exclude='security-check.sh' -e "$pattern" .; then
+  if grep -RInE --exclude-dir=.git --exclude-dir=.plumbline --exclude='security-check.sh' -e "$pattern" .; then
     echo "FAILED SEC-SEC-001: a high-confidence credential pattern was detected." >&2
     echo "Remove the credential, rotate it if exposed, and follow the incident process." >&2
     exit 1

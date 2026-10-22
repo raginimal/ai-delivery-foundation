@@ -18,6 +18,18 @@ The initial change-aware routing contract is in `config/ai/agent-routing.yaml`. 
 
 Formatting, linting, tests, secret scanning, SAST, IaC validation, dependency checks, policy validation, artifact verification, and deployment protections remain deterministic. Agents provide reasoning, context, trade-off analysis, and recommendations around those results.
 
+The vendored Plumbline gate adds deterministic checks for AI-generated stubs, debug leftovers, undeclared imports,
+swallowed exceptions, missing tests, oversized changes, and changes spanning too many modules. Run it locally with
+`bash scripts/plumbline-check.sh --all`; the quality workflow runs the same gate against pull-request changes.
+The vendored implementation is excluded from its own content scan because it contains detector patterns by design.
+The foundation's YAML architecture baseline and policy validators remain authoritative. Plumbline's source-level
+architecture rules are disabled until the foundation defines a compatible machine-checkable module map in
+`ARCHITECTURE.md`.
+
+The vendored `scripts/plumbline-guard.sh` is an agent PreToolUse guard, not a GitHub branch-protection replacement.
+Register it with the host agent's shell-tool hook to block merge, approval, force-push, hook-bypass, and protected
+branch commands. Repository administrators must still configure protected branches, CODEOWNERS, and required checks.
+
 ## Human boundary
 
 Agents cannot approve findings, exceptions, risk acceptance, production, IAM, merges, or deployments. Human reviewers remain accountable for defined decisions in the approval matrix.
