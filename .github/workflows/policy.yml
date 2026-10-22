@@ -14,11 +14,11 @@ jobs:
     name: Repository and policy enforcement
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Validate repository structure and ownership
-        run: bash scripts/validate.sh
+        run: bash scripts/validate-repository.sh
       - name: Validate policy IDs and references
         run: bash scripts/validate-policies.sh
       - name: Validate exceptions
