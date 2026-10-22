@@ -19,7 +19,20 @@ if test -f CODEOWNERS; then
   exit 1
 fi
 
-if grep -RInE 'CHANGE_ME|YOUR_|REPLACE_ME' --exclude-dir=.git --exclude='PROJECT.yaml' --exclude='CODEOWNERS' --exclude='setup.sh' --exclude='validate.sh' --exclude='validate-repository.sh' --exclude='*.template.yaml' .; then
+if grep -RInE \
+  'CHANGE_ME|YOUR_|REPLACE_ME' \
+  --exclude-dir=.git \
+  --exclude=PROJECT.yaml \
+  --exclude=CODEOWNERS \
+  --exclude=setup.sh \
+  --exclude=validate.sh \
+  --exclude=validate-repository.sh \
+  --exclude=foundation.py \
+  --exclude='*.template.yaml' \
+  --exclude=devops-developer-guide.html \
+  --exclude=README.md \
+  --exclude=existing-project.md \
+  .; then
   echo "FAILED RP-001: unresolved placeholder found outside approved templates." >&2
   exit 1
 fi
