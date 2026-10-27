@@ -4,4 +4,5 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root_dir"
 
-exec python3 .plumbline/guard.py
+source "$root_dir/scripts/python.sh"
+run_python .plumbline/guard.py

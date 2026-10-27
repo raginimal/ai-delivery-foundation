@@ -336,7 +336,8 @@ The foundation also vendors a pinned, standard-library-only Plumbline profile. `
 quality workflow run `scripts/plumbline-check.sh`, which detects common AI-generated defects and risky change shape.
 The profile is deliberately scoped to complement, not replace, the foundation's policy validators and YAML
 architecture baseline. The companion `scripts/plumbline-guard.sh` can be registered as an agent shell-tool hook to
-block merge, approval, force-push, hook-bypass, and protected-branch commands.
+block merge, approval, force-push, hook-bypass, and protected-branch commands. The guard requires Python 3.10 or
+later, available as `python3`, `python`, or `py -3`.
 
 The current core includes repository and policy validation, high-confidence secret checks, PR/risk validation hooks, artifact digest verification, and conditional hooks for dependencies, SAST, IaC, containers, tests, and coverage.
 
