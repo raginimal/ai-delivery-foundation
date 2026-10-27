@@ -337,7 +337,8 @@ quality workflow run `scripts/plumbline-check.sh`, which detects common AI-gener
 The profile is deliberately scoped to complement, not replace, the foundation's policy validators and YAML
 architecture baseline. The companion `scripts/plumbline-guard.sh` can be registered as an agent shell-tool hook to
 block merge, approval, force-push, hook-bypass, and protected-branch commands. The guard requires Python 3.10 or
-later, available as `python3`, `python`, or `py -3`.
+later, available as `python3`, `python`, or `py -3`. The Actions run summary and pull-request report retain
+Plumbline score and finding evidence in line with DEVOPS-CI-005 and DEVOPS-PR-003.
 
 The current core includes repository and policy validation, high-confidence secret checks, PR/risk validation hooks, artifact digest verification, and conditional hooks for dependencies, SAST, IaC, containers, tests, and coverage.
 
@@ -346,7 +347,7 @@ The actual GitHub workflows are:
 - [ci.yml](.github/workflows/ci.yml): build and baseline repository validation
 - [policy.yml](.github/workflows/policy.yml): repository, policies, exceptions, PR metadata, risk paths, and architecture baseline impact
 - [security.yml](.github/workflows/security.yml): secret checks and conditional security assets
-- [quality.yml](.github/workflows/quality.yml): lint and tests
+- [quality.yml](.github/workflows/quality.yml): Plumbline scoring (shown in the Actions run summary and as an updated PR comment for same-repository pull requests), lint, and tests
 - [infrastructure.yml](.github/workflows/infrastructure.yml): conditional Terraform validation
 - [cd.yml](.github/workflows/cd.yml): artifact build, verification, environment promotion, and overlay hooks
 
