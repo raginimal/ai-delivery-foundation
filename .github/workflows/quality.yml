@@ -72,9 +72,25 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run lint hooks
+        id: lint
         run: bash scripts/lint.sh
       - name: Run tests
+        id: tests
         run: bash scripts/test.sh
+      - name: Summarize lint and tests
+        if: always()
+        env:
+          LINT_RESULT: ${{ steps.lint.outcome }}
+          TEST_RESULT: ${{ steps.tests.outcome }}
+        run: |
+          {
+            echo "## Quality checks"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Lint | $LINT_RESULT |"
+            echo "| Tests | $TEST_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   plumbline-pr-comment:
     name: Publish Plumbline PR report
