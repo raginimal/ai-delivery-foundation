@@ -3,6 +3,7 @@ set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root_dir"
+source "$root_dir/scripts/python.sh"
 
 read_value() {
   local prompt="$1" current="$2" value
@@ -20,7 +21,7 @@ repository_organization="$(read_value 'Repository organization' 'CHANGE_ME')"
 environments="$(read_value 'Environments (comma-separated)' 'dev,test,prod')"
 ai_capabilities="$(read_value 'AI capabilities (comma-separated)' 'none')"
 
-python3 - "$project_name" "$team" "$owner" "$language" "$cloud" "$project_type" "$repository_organization" "$environments" "$ai_capabilities" <<'PY'
+run_python - "$project_name" "$team" "$owner" "$language" "$cloud" "$project_type" "$repository_organization" "$environments" "$ai_capabilities" <<'PY'
 from pathlib import Path
 import sys
 

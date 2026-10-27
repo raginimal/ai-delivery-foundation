@@ -3,6 +3,7 @@ set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root_dir"
+source "$root_dir/scripts/python.sh"
 
 mkdir -p dist
 commit_sha="${GITHUB_SHA:-$(git rev-parse HEAD 2>/dev/null || printf 'local')}"
@@ -16,7 +17,7 @@ rm -f dist/project-template-*.tar.gz dist/artifact-manifest.json dist/artifact.s
 
 tar -czf "$artifact" --exclude=.git --exclude=dist .
 digest="$(sha256sum "$artifact" | awk '{print $1}')"
-python3 - "$artifact" "$digest" "$commit_sha" "$version" "$repository" <<'PY'
+run_python - "$artifact" "$digest" "$commit_sha" "$version" "$repository" <<'PY'
 import json
 import os
 import sys

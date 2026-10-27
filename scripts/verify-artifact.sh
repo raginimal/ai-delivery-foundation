@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+source "$(dirname "${BASH_SOURCE[0]}")/python.sh"
+
 artifact_path="${ARTIFACT_PATH:-}"
 if test -z "$artifact_path"; then
   artifact_path="$(find dist -maxdepth 1 -type f -name 'project-template-*.tar.gz' -print -quit)"
@@ -12,7 +14,7 @@ test -f dist/artifact.sha256 || { echo "FAILED DEVOPS-CD-002: artifact digest no
 digest="$(sha256sum "$artifact_path" | awk '{print $1}')"
 expected_digest="$(awk '{print $1}' dist/artifact.sha256)"
 expected_name="$(awk '{print $2}' dist/artifact.sha256)"
-manifest_digest="$(python3 -c 'import json; print(json.load(open("dist/artifact-manifest.json"))["sha256"])')"
+manifest_digest="$(run_python -c 'import json; print(json.load(open("dist/artifact-manifest.json"))["sha256"])')"
 if test "$(basename "$artifact_path")" != "$expected_name"; then
   echo "FAILED DEVOPS-CD-002: artifact filename does not match digest record." >&2
   exit 1
